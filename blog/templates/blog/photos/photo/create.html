@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %} Create photo {% endblock %}
+{% block content %}
+    <img src="'{{ request.GET.url }}" >
+    <form action="." method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <input type="submit" value="Create">
+    </form>
+{% endblock %}

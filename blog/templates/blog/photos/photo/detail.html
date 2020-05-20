@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ photo.name }}{% endblock %}
+{% block content %}
+    <h1>{{ photo.name }}</h1>
+    <img src="{{ photo.photo.url }}" class="image-detail">
+    {% with total_likes=photo.users_like.count %}
+        <div class="image-info">
+            <div>
+                <span class="count">{{ total_likes }} like{{ total_likes|pluralize }}</span>
+            </div>
+            {{ photo.description|linebreaks }}
+        </div>
+        <div class="image-likes">
+            {% for user in photo.users_like.all %}
+                <div>
+                    <img src="{{ user.profile.photo.url }}">
+                    <p>{{ user.first_name }}</p>
+                </div>
+            {% empty %}
+                Nobody likes this image yet.
+            {% endfor %}
+        </div>
+    {% endwith %}
+{% endblock %}
+{% block domready %}
+  $('a.like').click(function(e){
+    e.preventDefault();
+    $.post('{% url "photos:like" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $('a.like').data('action');
+
+          // toggle data-action
+          $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
+          // toggle link text
+          $('a.like').text(previous_action == 'like' ? 'Unlike' : 'Like');
+
+          // update total likes
+          var previous_likes = parseInt($('span.count .total').text());
+          $('span.count .total').text(previous_action == 'like' ? previous_likes + 1 : previous_likes - 1);
+        }
+      }
+    );
+  });
+{% endblock %}
